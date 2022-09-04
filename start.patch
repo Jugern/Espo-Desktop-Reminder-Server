@@ -1,0 +1,14 @@
+Index: .gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .gitignore	(revision abcbc420f5757e63db3a5e447d8d9f118c038460)
++++ .gitignore	(date 1662321981820)
+@@ -1,2 +1,3 @@
+ .env
+-.idea
+\ No newline at end of file
++.idea
++__pycache__
+\ No newline at end of file
