@@ -1,6 +1,8 @@
 import mariadb
 import os
+import sqlCommand
 from dotenv import load_dotenv
+
 
 class Connections(): #connection DB, dataBasa = choice DB, commandData = sql command, soed = for inseert, update and delete command
     def connect(self, dataBasa, commandData, soed):
@@ -33,18 +35,20 @@ class Connections(): #connection DB, dataBasa = choice DB, commandData = sql com
             print('error connect')
 
 class Data(Connections): # sync ExpoCRM-DB and python-DB
-    def sravnenie(self, row, basa, database): #
+    def sravnenie(self, row, basa, database): # transfer reminder Espo-DB in python-DB and delete old reminder python-DB
         result1 = list(set(basa) - set(row))
         result2 = list(set(row) - set(basa))
-        if result1:
+        if result1:#transfer
             for i in result1:
                 commandi = (f"INSERT INTO notifications(notification_id, data, class, user) VALUES (?,?,?,?)")
                 self.connect(database, commandi, i)
-        if result2:
+        if result2:#delete
             for i in result2:
                 commandi = (f"DELETE FROM notifications WHERE notification_id=?")
                 turle = (i[0],)
                 self.connect(database, commandi, turle)
+        print(result1)
+        print(result2)
     def requestEspoCRM(self, database, commandMysql, soed): #connect EspoCRM and request all reminder
         try:
             row = self.connect(database, commandMysql, soed)
@@ -58,17 +62,9 @@ class Data(Connections): # sync ExpoCRM-DB and python-DB
         except:
             print('error')
 
-mySqlCommandProverka = """
-            SELECT reminder.id, reminder.remind_at, reminder.entity_type, user.user_name
-            FROM reminder
-            JOIN user ON reminder.user_id = user.id
-            WHERE reminder.deleted != 1"""
-
-mySqlCommandSozdanie = """
-            SELECT notification_id, data, class, user
-            FROM notifications"""
-
 def syncDB():
     zapros = Data()
-    basa = zapros.requestEspoCRM('databaseOne', mySqlCommandProverka, False)
-    zapros.addData(basa, 'databaseTwo', mySqlCommandSozdanie, False)
+    basa = zapros.requestEspoCRM('databaseOne', sqlCommand.mySqlCommandProverka, False)
+    zapros.addData(basa, 'databaseTwo', sqlCommand.mySqlCommandSozdanie, False)
+
+syncDB()
