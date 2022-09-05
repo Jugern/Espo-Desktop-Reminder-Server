@@ -2,7 +2,7 @@ import mariadb
 import os
 from dotenv import load_dotenv
 
-class Connections(): #connection DB, dataBasa = base EspoCRM, commandData = sql command, soed = for inseert, update and delete command
+class Connections(): #connection DB, dataBasa = choice DB, commandData = sql command, soed = for inseert, update and delete command
     def connect(self, dataBasa, commandData, soed):
         try:
             dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
@@ -45,7 +45,7 @@ class Data(Connections): # sync ExpoCRM-DB and python-DB
                 commandi = (f"DELETE FROM notifications WHERE notification_id=?")
                 turle = (i[0],)
                 self.connect(database, commandi, turle)
-    def requestEspoCRM(self, database, commandMysql, soed):
+    def requestEspoCRM(self, database, commandMysql, soed): #connect EspoCRM and request all reminder
         try:
             row = self.connect(database, commandMysql, soed)
             return row
@@ -68,6 +68,7 @@ mySqlCommandSozdanie = """
             SELECT notification_id, data, class, user
             FROM notifications"""
 
-zapros = Data()
-basa = zapros.requestEspoCRM('databaseOne', mySqlCommandProverka, False)
-zapros.addData(basa, 'databaseTwo', mySqlCommandSozdanie, False)
+def syncDB():
+    zapros = Data()
+    basa = zapros.requestEspoCRM('databaseOne', mySqlCommandProverka, False)
+    zapros.addData(basa, 'databaseTwo', mySqlCommandSozdanie, False)
