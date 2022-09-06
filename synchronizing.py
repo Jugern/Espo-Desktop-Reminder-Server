@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 
 class Connections(): #connection DB, dataBasa = choice DB, commandData = sql command, soed = for inseert, update and delete command
-    def connect(self, dataBasa, commandData, soed):
+    def connect(self, dataBasa, commandData, soed=False):
         try:
             dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
             if os.path.exists(dotenv_path):
@@ -49,22 +49,22 @@ class Data(Connections): # sync ExpoCRM-DB and python-DB
                 self.connect(database, commandi, turle)
         print(result1)
         print(result2)
-    def requestEspoCRM(self, database, commandMysql, soed): #connect EspoCRM and request all reminder
+    def requestEspoCRM(self, database, commandMysql): #connect EspoCRM and request all reminder
         try:
-            row = self.connect(database, commandMysql, soed)
+            row = self.connect(database, commandMysql)
             return row
         except:
             print('error')
-    def addData(self, basa, database, commandMysql, soed): #connect pythhon-DB and request all reminder
+    def addData(self, basa, database, commandMysql): #connect pythhon-DB and request all reminder
         try:
-            row = self.connect(database, commandMysql, soed)
+            row = self.connect(database, commandMysql)
             self.sravnenie(row, basa, database)
         except:
             print('error')
 
 def syncDB():
     zapros = Data()
-    basa = zapros.requestEspoCRM('databaseOne', sqlCommand.mySqlCommandProverka, False)
-    zapros.addData(basa, 'databaseTwo', sqlCommand.mySqlCommandSozdanie, False)
+    basa = zapros.requestEspoCRM('databaseOne', sqlCommand.mySqlCommandProverka)
+    zapros.addData(basa, 'databaseTwo', sqlCommand.mySqlCommandSozdanie)
 
 syncDB()
