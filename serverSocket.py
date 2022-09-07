@@ -2,11 +2,12 @@ import socket
 # import sys
 import json
 
-class serverSocket():
+class ServerSocket():
 
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_address = ('localhost', 19000)
+        print('Подключен к ip {} порт {}'.format(*self.server_address))
 
     def request(self, connection, client_address, dats=False):
         # base = {'da': 12}
@@ -40,5 +41,5 @@ class serverSocket():
                 self.connection.close()
 
 
-connect = serverSocket()
+connect = ServerSocket()
 connect.connect()
