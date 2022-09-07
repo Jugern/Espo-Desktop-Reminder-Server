@@ -35,7 +35,7 @@ class Connections(): #connection DB, dataBasa = choice DB, commandData = sql com
             print('error connect')
 
 class Data(Connections): # sync ExpoCRM-DB and python-DB
-    def sravnenie(self, row, basa, database): # transfer reminder Espo-DB in python-DB and delete old reminder python-DB
+    def sravnenie(self, row, basa, database): # transfers the Espo-DB reminder to python-DB and delete the old python-DB reminder
         result1 = list(set(basa) - set(row))
         result2 = list(set(row) - set(basa))
         if result1:#transfer
