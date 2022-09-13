@@ -1,31 +1,25 @@
-import socket
+import serverSocket
 from threading import Thread
 
-new_socket = socket.socket()
-new_socket.bind(('127.0.0.1', 5000))
 
-new_socket.listen(2)
+class start():
+    def __init__(self):
+        pass
+    def acceptRequests(self):
 
-print("Server is up now!")
+    def sendAReply(self):
 
-conn1, add1 = new_socket.accept()
-print("First client is connected!")
+    def databaseSync(self):
 
-conn2, add2 = new_socket.accept()
-print("Second client is connected!")
+    def checkSocket(self):
+        lockCheckSocket = threading.Lock()
+        lockCheckSocket.acquire()
+        try:
+            self.lcs = Thread(target=serverSocket.ServerSocket)
+            self.lcs.start()
+        finally:
+            lockCheckSocket.release()
 
-def acceptor1():
-    while True:
-        a = conn1.recv(1024)
-        conn2.send(a)
+    def startSocket(self):
 
-def acceptor2():
-    while True:
-        b = conn2.recv(1024)
-        conn1.send(b)
-
-tread1 = Thread(target=acceptor1)
-tread2 = Thread(target=acceptor2)
-
-tread1.start()
-tread2.start()
+    def recordsLogs(self):

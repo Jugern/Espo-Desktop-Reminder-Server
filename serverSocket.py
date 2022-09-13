@@ -1,5 +1,4 @@
 import socket
-# import sys
 import json
 
 class ServerSocket():
@@ -39,6 +38,8 @@ class ServerSocket():
                 print(errorSocket)
             finally:
                 self.connection.close()
+
+    def checkSocket(self):
 
 
 connect = ServerSocket()

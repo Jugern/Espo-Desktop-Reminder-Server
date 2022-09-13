@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 
 
 class Connections(): #connection DB, dataBasa = choice DB, commandData = sql command, soed = for inseert, update and delete command
+    def __init__(self):
+        pass
     def connect(self, dataBasa, commandData, soed=False):
         try:
             dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
@@ -35,6 +37,8 @@ class Connections(): #connection DB, dataBasa = choice DB, commandData = sql com
             print('error connect')
 
 class Data(Connections): # sync ExpoCRM-DB and python-DB
+    def __init__(self):
+        pass
     def sravnenie(self, row, basa, database): # transfers the Espo-DB reminder to python-DB and delete the old python-DB reminder
         result1 = list(set(basa) - set(row))
         result2 = list(set(row) - set(basa))
