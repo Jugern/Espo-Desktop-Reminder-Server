@@ -1,11 +1,15 @@
 import socket
 import json
+import os
+from dotenv import load_dotenv
 
 class ServerSocket():
-
     def __init__(self):
+        dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+        if os.path.exists(dotenv_path):
+            load_dotenv(dotenv_path)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_address = ('localhost', 19000)
+        self.server_address = (os.environ.get('host'), int(os.environ.get('port')))
         print('Подключен к ip {} порт {}'.format(*self.server_address))
 
     def request(self, connection, client_address, dats=False):
@@ -39,8 +43,8 @@ class ServerSocket():
             finally:
                 self.connection.close()
 
-    def checkSocket(self):
+    # def checkSocket(self):
 
 
-connect = ServerSocket()
-connect.connect()
+# connect = ServerSocket()
+# connect.connect()

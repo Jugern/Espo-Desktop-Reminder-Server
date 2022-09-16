@@ -9,9 +9,6 @@ class Connections(): #connection DB, dataBasa = choice DB, commandData = sql com
         pass
     def connect(self, dataBasa, commandData, soed=False):
         try:
-            dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-            if os.path.exists(dotenv_path):
-                load_dotenv(dotenv_path)
             self.conn_params = {
                 "user": os.environ.get('user'),
                 "password": os.environ.get('password'),
