@@ -14,8 +14,8 @@ class ServerSocket():
 
     def request(self, connection, client_address, dats=False):
         # base = {'da': 12}
-        base = {"data": {"hostname": "192.168.7.6", "ipaddress": "192.168.7.6", "comment": "АдминистраторСервер",
-                         "command": "discovery"}}
+        base = {"1": {"login": "admin", "loginAPI": "12345678", "time": "2022.10.05.10.10.10",
+                         "text": {"notifications":'call', 'url':'urls'}}}
         if dats:
             raw_data = json.dumps(base)
             connection.sendall(raw_data.encode("utf-8"))
@@ -46,5 +46,5 @@ class ServerSocket():
     # def checkSocket(self):
 
 
-# connect = ServerSocket()
-# connect.connect()
+connect = ServerSocket()
+connect.connect()
