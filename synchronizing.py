@@ -7,12 +7,16 @@ from dotenv import load_dotenv
 class Connections(): #connection DB, dataBasa = choice DB, commandData = sql command, soed = for inseert, update and delete command
     def __init__(self):
         pass
+
     def connect(self, dataBasa, commandData, soed=False):
+        dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+        if os.path.exists(dotenv_path):
+            load_dotenv(dotenv_path)
         try:
             self.conn_params = {
                 "user": os.environ.get('user'),
                 "password": os.environ.get('password'),
-                "host": os.environ.get('host'),
+                "host": os.environ.get('host1'),
                 "database": os.environ.get(f'{dataBasa}')
             }
             zapros = (self.conn_params)
@@ -36,6 +40,7 @@ class Connections(): #connection DB, dataBasa = choice DB, commandData = sql com
 class Data(Connections): # sync ExpoCRM-DB and python-DB
     def __init__(self):
         pass
+
     def sravnenie(self, row, basa, database): # transfers the Espo-DB reminder to python-DB and delete the old python-DB reminder
         result1 = list(set(basa) - set(row))
         result2 = list(set(row) - set(basa))
@@ -50,6 +55,8 @@ class Data(Connections): # sync ExpoCRM-DB and python-DB
                 self.connect(database, commandi, turle)
         print(result1)
         print(result2)
+        print(row)
+        print(basa)
     def requestEspoCRM(self, database, commandMysql): #connect EspoCRM and request all reminder
         try:
             row = self.connect(database, commandMysql)

@@ -8,3 +8,8 @@ mySqlCommandProverka = """
 mySqlCommandSozdanie = """
             SELECT notification_id, data, class, user
             FROM notifications"""
+
+mySqlCommandVseApi = """
+            SELECT user.id, user.name, user.deleted, user.user_name, user.api_key, is_active
+            FROM user
+            WHERE user.type = 'api'"""

@@ -4,9 +4,9 @@ import serverSocket
 from threading import Thread
 
 class start():
-    # dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-    # if os.path.exists(dotenv_path):
-    #     load_dotenv(dotenv_path)
+    dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+    if os.path.exists(dotenv_path):
+        load_dotenv(dotenv_path)
     def __init__(self):
         pass
     def acceptRequests(self):
@@ -28,5 +28,6 @@ class start():
         pass
     def recordsLogs(self):
         pass
+
 starte = serverSocket.ServerSocket()
 starte.connect()
