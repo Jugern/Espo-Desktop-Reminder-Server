@@ -1,6 +1,6 @@
 import mariadb
 import os
-import sqlCommand
+from sqlCommand import Command
 from dotenv import load_dotenv
 
 
@@ -20,25 +20,28 @@ class Connections(): #connection DB, dataBasa = choice DB, commandData = sql com
                 "database": os.environ.get(f'{dataBasa}')
             }
             zapros = (self.conn_params)
-            connection = mariadb.connect(**zapros)
-            cursor = connection.cursor()
+            self.connection = mariadb.connect(**zapros)
+            cursor = self.connection.cursor()
             if soed == False:
                 cursor.execute(f"""{commandData}""")
                 row = cursor.fetchall()
                 cursor.close()
-                connection.close()
+                self.connection.close()
                 return row
             if soed:
                 cursor.execute(f"""{commandData}""", soed)
-                connection.commit()
+                self.connection.commit()
                 cursor.close()
-                connection.close()
+                self.connection.close()
                 return True
         except:
             print('error connect')
 
-class Data(Connections): # sync ExpoCRM-DB and python-DB
+class DataSync(Connections): # sync ExpoCRM-DB and python-DB
     def __init__(self):
+        super().CommandSQL()
+        self.basa = self.requestEspoCRM('databaseOne', self.mySqlCommandProverka)
+        self.addData(self.basa, 'databaseTwo', self.mySqlCommandSozdanie)
         pass
 
     def sravnenie(self, row, basa, database): # transfers the Espo-DB reminder to python-DB and delete the old python-DB reminder
@@ -59,20 +62,20 @@ class Data(Connections): # sync ExpoCRM-DB and python-DB
         print(basa)
     def requestEspoCRM(self, database, commandMysql): #connect EspoCRM and request all reminder
         try:
-            row = self.connect(database, commandMysql)
+            row = self.connect(database, commandMysql, False)
             return row
         except:
             print('error')
     def addData(self, basa, database, commandMysql): #connect pythhon-DB and request all reminder
         try:
-            row = self.connect(database, commandMysql)
+            row = self.connect(database, commandMysql, False)
             self.sravnenie(row, basa, database)
         except:
             print('error')
 
-def syncDB():
-    zapros = Data()
-    basa = zapros.requestEspoCRM('databaseOne', sqlCommand.mySqlCommandProverka)
-    zapros.addData(basa, 'databaseTwo', sqlCommand.mySqlCommandSozdanie)
-
-syncDB()
+    def startMysql(self):
+        # print(f'{self.mySqlCommandProverka}')
+        self.basa = self.requestEspoCRM(database='databaseOne', commandMysql=self.mySqlCommandProverka)
+        self.addData(basa=self.basa, database='databaseTwo', commandMysql=self.mySqlCommandSozdanie)
+        # self.basa = zapros.requestEspoCRM('databaseOne', sqlCommand.mySqlCommandProverka)
+        # zapros.addData(basa, 'databaseTwo', sqlCommand.mySqlCommandSozdanie)

@@ -1,19 +1,38 @@
-import serverSocket
-import os, json
+import os, json, schedule, time, threading
+from sqlCommand import Command
 from dotenv import load_dotenv
 from threading import Thread
+from serverSocket import ServerSocket
+from synchronizing import DataSync
 
-class start(serverSocket.ServerSocket):
+class startServer(ServerSocket, DataSync, Command):
     dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
     if os.path.exists(dotenv_path):
         load_dotenv(dotenv_path)
 
     def __init__(self):
         self.acceptData = {}
-        super().__init__()
+        self.otvet = {}
+        self.checkStatus = 0
+        super().CommandSQL()
+        self.checkSocket()
+        self.checkSchedule()
         # self.connect()
 
+
+
+    def scheduleTask(self):
+        schedule.every(5).seconds.do(lambda: self.startMysql()).tag('Task')
+        while True:
+            print('doshlo3')
+            if self.checkStatus == 0:
+                schedule.run_pending()
+                time.sleep(1)
+            else:
+                break
+
     def request(self, dats=False):
+        self.otvet = self.acceptRequests()
         base = {"1": {"login": "admin", "loginAPI": "admin", "time": "2022.10.05.10.10.10",
                          "text": {"notifications":'meeting', 'descriptions':'123qweasd', 'url':'urls'}}}
         if dats:
@@ -31,6 +50,7 @@ class start(serverSocket.ServerSocket):
         # self.acceptData
 
     def acceptRequests(self):
+
         pass
 
     def sendAReply(self):
@@ -43,10 +63,20 @@ class start(serverSocket.ServerSocket):
         lockCheckSocket = threading.Lock()
         lockCheckSocket.acquire()
         try:
-            self.lcs = Thread(target=serverSocket.ServerSocket)
+            self.lcs = Thread(target=ServerSocket)
             self.lcs.start()
         finally:
             lockCheckSocket.release()
+
+    def checkSchedule(self):
+        lockCheckSocket = threading.Lock()
+        lockCheckSocket.acquire()
+        try:
+            self.lcs = Thread(target=self.scheduleTask)
+            self.lcs.start()
+        finally:
+            lockCheckSocket.release()
+
 
     def startSocket(self):
         pass
@@ -55,5 +85,5 @@ class start(serverSocket.ServerSocket):
         pass
 
 if __name__=="__main__":
-    start = start()
+    start = startServer()
     # starte.connect()
