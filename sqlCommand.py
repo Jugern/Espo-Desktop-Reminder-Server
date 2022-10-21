@@ -22,3 +22,5 @@ class Command():
             SELECT notification_id, data, class, user
             FROM notifications
             WHERE user=?"""
+
+        self.mySqlEnterTable = """SELECT LOWER(reminder.entity_type) FROM reminder"""

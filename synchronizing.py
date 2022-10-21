@@ -27,6 +27,7 @@ class Connections(): #connection DB, dataBasa = choice DB, commandData = sql com
                 row = cursor.fetchall()
                 cursor.close()
                 self.connection.close()
+                # print(row)
                 return row
             if soed:
                 cursor.execute(f"""{commandData}""", soed)
@@ -76,6 +77,6 @@ class DataSync(Connections): # sync ExpoCRM-DB and python-DB
     def startMysql(self):
         # print(f'{self.mySqlCommandProverka}')
         self.basa = self.requestEspoCRM(database='databaseOne', commandMysql=self.mySqlCommandProverka)
-        self.addData(basa=self.basa, database='databaseTwo', commandMysql=self.mySqlCommandSozdanie)
+        # self.addData(basa=self.basa, database='databaseTwo', commandMysql=self.mySqlCommandSozdanie)
         # self.basa = zapros.requestEspoCRM('databaseOne', sqlCommand.mySqlCommandProverka)
         # zapros.addData(basa, 'databaseTwo', sqlCommand.mySqlCommandSozdanie)
