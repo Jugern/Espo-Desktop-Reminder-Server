@@ -22,6 +22,7 @@ class Connections(): #connection DB, dataBasa = choice DB, commandData = sql com
             zapros = (self.conn_params)
             self.connection = mariadb.connect(**zapros)
             cursor = self.connection.cursor()
+            print(commandData)
             if soed == False:
                 cursor.execute(f"""{commandData}""")
                 row = cursor.fetchall()
@@ -38,11 +39,11 @@ class Connections(): #connection DB, dataBasa = choice DB, commandData = sql com
         except:
             print('error connect')
 
-class DataSync(Connections): # sync ExpoCRM-DB and python-DB
+class DataSync(Connections, Command): # sync ExpoCRM-DB and python-DB
     def __init__(self):
         super().CommandSQL()
-        self.basa = self.requestEspoCRM('databaseOne', self.mySqlCommandProverka)
-        self.addData(self.basa, 'databaseTwo', self.mySqlCommandSozdanie)
+        # self.basa = self.requestEspoCRM('databaseOne', self.mySqlCommandProverka)
+        # self.addData(self.basa, 'databaseTwo', self.mySqlCommandSozdanie)
         pass
 
     def sravnenie(self, row, basa, database): # transfers the Espo-DB reminder to python-DB and delete the old python-DB reminder
@@ -61,9 +62,9 @@ class DataSync(Connections): # sync ExpoCRM-DB and python-DB
         print(result2)
         print(row)
         print(basa)
-    def requestEspoCRM(self, database, commandMysql): #connect EspoCRM and request all reminder
+    def requestEspoCRM(self, database, commandMysql, soed=False): #connect EspoCRM and request all reminder
         try:
-            row = self.connect(database, commandMysql, False)
+            row = self.connect(database, commandMysql, soed)
             return row
         except:
             print('error')
@@ -75,8 +76,20 @@ class DataSync(Connections): # sync ExpoCRM-DB and python-DB
             print('error')
 
     def startMysql(self):
-        # print(f'{self.mySqlCommandProverka}')
-        self.basa = self.requestEspoCRM(database='databaseOne', commandMysql=self.mySqlCommandProverka)
-        # self.addData(basa=self.basa, database='databaseTwo', commandMysql=self.mySqlCommandSozdanie)
-        # self.basa = zapros.requestEspoCRM('databaseOne', sqlCommand.mySqlCommandProverka)
-        # zapros.addData(basa, 'databaseTwo', sqlCommand.mySqlCommandSozdanie)
+        # self.basa = self.requestEspoCRM(database='databaseOne', commandMysql=self.mySqlCommandProverka)
+        les = self.requestEspoCRM(database='databaseOne', commandMysql=self.requestReminder)
+        for i in range(len(les)):
+            # print(self.requsetTask)
+            # print(les[i][0])
+            self.raz=les[i][0]
+            self.dva=les[i][1]
+            self.tri=les[i][2]
+            self.requsetTask = f"""SELECT * from {self.raz} WHERE {self.dva}.id = '{self.tri}';"""
+            let = self.requestEspoCRM(database='databaseOne', commandMysql=self.requsetTask)
+            print(let)
+            # print(i)
+        # s = [i for i in les]
+        # print(s[0][0])
+
+sin = DataSync()
+sin.startMysql()
