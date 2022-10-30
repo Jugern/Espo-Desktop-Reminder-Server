@@ -6,7 +6,7 @@ class Command():
         self.raz = str()
         self.dva = str()
         self.tri = str()
-        self.requestReminder = """SELECT LOWER(reminder.entity_type), LOWER(reminder.entity_type), reminder.entity_id FROM reminder"""
+        self.requestReminder = """SELECT LOWER(reminder.entity_type), reminder.entity_type, reminder.entity_id FROM reminder"""
 
         self.requsetTask = f"""SELECT * from {self.raz} WHERE {self.dva}.id = {self.tri}"""
 

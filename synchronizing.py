@@ -22,7 +22,7 @@ class Connections(): #connection DB, dataBasa = choice DB, commandData = sql com
             zapros = (self.conn_params)
             self.connection = mariadb.connect(**zapros)
             cursor = self.connection.cursor()
-            print(commandData)
+            # print(commandData)
             if soed == False:
                 cursor.execute(f"""{commandData}""")
                 row = cursor.fetchall()
@@ -78,13 +78,19 @@ class DataSync(Connections, Command): # sync ExpoCRM-DB and python-DB
     def startMysql(self):
         # self.basa = self.requestEspoCRM(database='databaseOne', commandMysql=self.mySqlCommandProverka)
         les = self.requestEspoCRM(database='databaseOne', commandMysql=self.requestReminder)
+        # print(les)
         for i in range(len(les)):
             # print(self.requsetTask)
             # print(les[i][0])
             self.raz=les[i][0]
             self.dva=les[i][1]
             self.tri=les[i][2]
-            self.requsetTask = f"""SELECT * from {self.raz} WHERE {self.dva}.id = '{self.tri}';"""
+            # self.requsetTask = f"""SELECT {self.raz}.* from user join {self.raz} WHERE {self.raz}.id = '{self.tri}';"""
+            self.requsetTask = f"""SELECT user.user_name, {self.raz}.name, {self.raz}.description, reminder.remind_at
+from user
+join {self.raz} on {self.raz}.assigned_user_id = user.id
+join reminder on reminder.entity_id = {self.raz}.id
+WHERE reminder.deleted != 1 and reminder.entity_type = '{self.dva}' and reminder.entity_id = '{self.tri}';"""
             let = self.requestEspoCRM(database='databaseOne', commandMysql=self.requsetTask)
             print(let)
             # print(i)
