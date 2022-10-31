@@ -1,5 +1,6 @@
 import mariadb
-import os
+import os, functools
+from itertools import product
 from sqlCommand import Command
 from dotenv import load_dotenv
 
@@ -22,13 +23,15 @@ class Connections(): #connection DB, dataBasa = choice DB, commandData = sql com
             zapros = (self.conn_params)
             self.connection = mariadb.connect(**zapros)
             cursor = self.connection.cursor()
-            # print(commandData)
+            dateras = f"""SELECT * FROM reminder WHERE reminder.remind_at < DATE_ADD(DATE_SUB(NOW(), INTERVAL 3 HOUR), INTERVAL 1 MINUTE ) AND reminder.remind_at > DATE_ADD(DATE_SUB(NOW(), INTERVAL 3 HOUR), INTERVAL 1 SECOND ) AND reminder.user_name='admin';"""
             if soed == False:
-                cursor.execute(f"""{commandData}""")
+                cursor.execute(dateras)
                 row = cursor.fetchall()
                 cursor.close()
                 self.connection.close()
                 # print(row)
+                if not row:
+                    return False
                 return row
             if soed:
                 cursor.execute(f"""{commandData}""", soed)
@@ -41,61 +44,73 @@ class Connections(): #connection DB, dataBasa = choice DB, commandData = sql com
 
 class DataSync(Connections, Command): # sync ExpoCRM-DB and python-DB
     def __init__(self):
+        self.requsetTask = str()
         super().CommandSQL()
+        self.contactMySQL = 0
+        self.spisokDlyaSravneniya = []
+        self.spisokDlyaSravneniyaDva = []
+        self.spisokDlyaSravneniyaTri = []
         # self.basa = self.requestEspoCRM('databaseOne', self.mySqlCommandProverka)
         # self.addData(self.basa, 'databaseTwo', self.mySqlCommandSozdanie)
-        pass
 
-    def sravnenie(self, row, basa, database): # transfers the Espo-DB reminder to python-DB and delete the old python-DB reminder
-        result1 = list(set(basa) - set(row))
-        result2 = list(set(row) - set(basa))
+    def sravnenie(self, database): # transfers the Espo-DB reminder to python-DB and delete the old python-DB reminder
+        result1 = list(set(self.spisokDlyaSravneniya) - set(self.spisokDlyaSravneniyaDva))
+        result2 = list(set(self.spisokDlyaSravneniyaDva) - set(self.spisokDlyaSravneniya))
         if result1:#transfer
             for i in result1:
-                commandi = (f"INSERT INTO notifications(notification_id, data, class, user) VALUES (?,?,?,?)")
+                commandi = (f"INSERT INTO reminder(reminder_id, user_name, text_name, descriptions, remind_at, start_at) VALUES (?,?,?,?,?,?)")
                 self.connect(database, commandi, i)
         if result2:#delete
             for i in result2:
-                commandi = (f"DELETE FROM notifications WHERE notification_id=?")
+                commandi = (f"DELETE FROM reminder WHERE reminder_id=?")
                 turle = (i[0],)
                 self.connect(database, commandi, turle)
+        self.spisokDlyaSravneniya = 0
+        self.spisokDlyaSravneniyaDva = 0
+        self.spisokDlyaSravneniyaTri = 0
+        self.contactMySQL = 0
         print(result1)
         print(result2)
-        print(row)
-        print(basa)
+        print(self.spisokDlyaSravneniya)
+        print(self.spisokDlyaSravneniyaDva)
     def requestEspoCRM(self, database, commandMysql, soed=False): #connect EspoCRM and request all reminder
         try:
             row = self.connect(database, commandMysql, soed)
             return row
         except:
             print('error')
-    def addData(self, basa, database, commandMysql): #connect pythhon-DB and request all reminder
+    def addData(self, database, commandMysql): #connect pythhon-DB and request all reminder
         try:
-            row = self.connect(database, commandMysql, False)
-            self.sravnenie(row, basa, database)
+            self.spisokDlyaSravneniyaDva = self.connect(database, commandMysql, False)
+            self.sravnenie(database)
         except:
             print('error')
 
     def startMysql(self):
-        # self.basa = self.requestEspoCRM(database='databaseOne', commandMysql=self.mySqlCommandProverka)
-        les = self.requestEspoCRM(database='databaseOne', commandMysql=self.requestReminder)
-        # print(les)
-        for i in range(len(les)):
-            # print(self.requsetTask)
-            # print(les[i][0])
-            self.raz=les[i][0]
-            self.dva=les[i][1]
-            self.tri=les[i][2]
-            # self.requsetTask = f"""SELECT {self.raz}.* from user join {self.raz} WHERE {self.raz}.id = '{self.tri}';"""
-            self.requsetTask = f"""SELECT user.user_name, {self.raz}.name, {self.raz}.description, reminder.remind_at
-from user
-join {self.raz} on {self.raz}.assigned_user_id = user.id
-join reminder on reminder.entity_id = {self.raz}.id
-WHERE reminder.deleted != 1 and reminder.entity_type = '{self.dva}' and reminder.entity_id = '{self.tri}';"""
-            let = self.requestEspoCRM(database='databaseOne', commandMysql=self.requsetTask)
-            print(let)
-            # print(i)
-        # s = [i for i in les]
-        # print(s[0][0])
+        if not self.contactMySQL:
+            self.contactMySQL = 1
+            les = self.requestEspoCRM(database='databaseOne', commandMysql=self.requestReminder)
+            for i in range(len(les)):
+                self.raz = les[i][0]
+                self.dva = les[i][1]
+                self.tri = les[i][2]
+                self.requsetTask = f"""SELECT reminder.id, user.user_name, {self.raz}.name, {self.raz}.description, reminder.remind_at, reminder.start_at
+            from user
+            join {self.raz} on {self.raz}.assigned_user_id = user.id
+            join reminder on reminder.entity_id = {self.raz}.id
+            WHERE reminder.deleted != 1 and reminder.entity_type = '{self.dva}' and reminder.entity_id = '{self.tri}' and reminder.type = 'Popup';"""
+                let = self.requestEspoCRM(database='databaseOne', commandMysql=self.requsetTask)
+                self.spisokDlyaSravneniya.append(tuple(let[0]))
+            self.addData('databaseTwo', self.mySqlCommandSozdanie)
+
+    def RequestDataBase(self):
+        if not self.contactMySQL:
+            self.contactMySQL = 1
+            zapros = self.connect('databaseTwo', self.requestMySQL)
+            if not zapros:
+                print('da')
+            # zapros = self.connect('databaseTwo', requestMySQL, self.transformLogin)
+            self.contactMySQL = 0
 
 sin = DataSync()
-sin.startMysql()
+sin.RequestDataBase()
