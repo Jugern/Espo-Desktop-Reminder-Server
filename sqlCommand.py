@@ -14,15 +14,12 @@ join {self.raz} on {self.raz}.assigned_user_id = user.id
 join reminder on reminder.entity_id = {self.raz}.id
 WHERE reminder.deleted != 1 and reminder.entity_type = '{self.dva}' and reminder.entity_id = '{self.tri}' and reminder.type = 'Popup';"""
 
-        self.mySqlCommandProverka = """
-            SELECT reminder.id, reminder.remind_at, reminder.entity_type, user.user_name
+        self.mySqlCommandProverka = """SELECT reminder.id, reminder.remind_at, reminder.entity_type, user.user_name
             FROM reminder
             JOIN user ON reminder.user_id = user.id
             WHERE reminder.deleted != 1"""
 
-        self.mySqlCommandSozdanie = """
-            SELECT reminder_id, user_name, text_name, descriptions, remind_at, start_at
-            FROM reminder"""
+        self.mySqlCommandSozdanie = """SELECT reminder_id, user_name, text_name, descriptions, remind_at, start_at FROM reminder"""
 
         self.mySqlCommandVseApi = """
             SELECT user.id, user.name, user.deleted, user.user_name, user.api_key, is_active

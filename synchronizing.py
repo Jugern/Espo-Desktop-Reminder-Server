@@ -14,6 +14,7 @@ class Connections(): #connection DB, dataBasa = choice DB, commandData = sql com
         if os.path.exists(dotenv_path):
             load_dotenv(dotenv_path)
         try:
+            # print(commandData)
             self.conn_params = {
                 "user": os.environ.get('user'),
                 "password": os.environ.get('password'),
@@ -23,13 +24,12 @@ class Connections(): #connection DB, dataBasa = choice DB, commandData = sql com
             zapros = (self.conn_params)
             self.connection = mariadb.connect(**zapros)
             cursor = self.connection.cursor()
-            dateras = f"""SELECT * FROM reminder WHERE reminder.remind_at < DATE_ADD(DATE_SUB(NOW(), INTERVAL 3 HOUR), INTERVAL 1 MINUTE ) AND reminder.remind_at > DATE_ADD(DATE_SUB(NOW(), INTERVAL 3 HOUR), INTERVAL 1 SECOND ) AND reminder.user_name='admin';"""
+            # dateras = f"""SELECT * FROM reminder WHERE reminder.remind_at < DATE_ADD(DATE_SUB(NOW(), INTERVAL 3 HOUR), INTERVAL 1 MINUTE ) AND reminder.remind_at > DATE_ADD(DATE_SUB(NOW(), INTERVAL 3 HOUR), INTERVAL 1 SECOND ) AND reminder.user_name='admin';"""
             if soed == False:
-                cursor.execute(dateras)
+                cursor.execute(commandData)
                 row = cursor.fetchall()
                 cursor.close()
                 self.connection.close()
-                # print(row)
                 if not row:
                     return False
                 return row
@@ -46,10 +46,6 @@ class DataSync(Connections, Command): # sync ExpoCRM-DB and python-DB
     def __init__(self):
         self.requsetTask = str()
         super().CommandSQL()
-        self.contactMySQL = 0
-        self.spisokDlyaSravneniya = []
-        self.spisokDlyaSravneniyaDva = []
-        self.spisokDlyaSravneniyaTri = []
         # self.basa = self.requestEspoCRM('databaseOne', self.mySqlCommandProverka)
         # self.addData(self.basa, 'databaseTwo', self.mySqlCommandSozdanie)
 
@@ -62,27 +58,35 @@ class DataSync(Connections, Command): # sync ExpoCRM-DB and python-DB
                 self.connect(database, commandi, i)
         if result2:#delete
             for i in result2:
-                commandi = (f"DELETE FROM reminder WHERE reminder_id=?")
+                commandi2 = (f"DELETE FROM reminder WHERE reminder_id=?")
                 turle = (i[0],)
-                self.connect(database, commandi, turle)
-        self.spisokDlyaSravneniya = 0
-        self.spisokDlyaSravneniyaDva = 0
-        self.spisokDlyaSravneniyaTri = 0
-        self.contactMySQL = 0
+                self.connect(database, commandi2, turle)
         print(result1)
         print(result2)
         print(self.spisokDlyaSravneniya)
         print(self.spisokDlyaSravneniyaDva)
+        self.spisokDlyaSravneniya.clear()
+        self.spisokDlyaSravneniyaDva.clear()
+        self.spisokDlyaSravneniyaTri.clear()
+        self.spisokDlyaSravneniyaChet.clear()
+        self.contactMySQL = 0
+        return True
+
     def requestEspoCRM(self, database, commandMysql, soed=False): #connect EspoCRM and request all reminder
         try:
             row = self.connect(database, commandMysql, soed)
             return row
         except:
             print('error')
+
     def addData(self, database, commandMysql): #connect pythhon-DB and request all reminder
         try:
-            self.spisokDlyaSravneniyaDva = self.connect(database, commandMysql, False)
-            self.sravnenie(database)
+            if self.connect(database, commandMysql, False) != False:
+                self.spisokDlyaSravneniyaDva = self.connect(database, commandMysql, False)
+                self.sravnenie(database)
+            else:
+                self.sravnenie(database)
+            return True
         except:
             print('error')
 
@@ -94,14 +98,17 @@ class DataSync(Connections, Command): # sync ExpoCRM-DB and python-DB
                 self.raz = les[i][0]
                 self.dva = les[i][1]
                 self.tri = les[i][2]
-                self.requsetTask = f"""SELECT reminder.id, user.user_name, {self.raz}.name, {self.raz}.description, reminder.remind_at, reminder.start_at
+                self.requsetTask = f"""SELECT reminder.id, user.user_name, {les[i][0]}.name, {les[i][0]}.description, reminder.remind_at, reminder.start_at
             from user
-            join {self.raz} on {self.raz}.assigned_user_id = user.id
-            join reminder on reminder.entity_id = {self.raz}.id
-            WHERE reminder.deleted != 1 and reminder.entity_type = '{self.dva}' and reminder.entity_id = '{self.tri}' and reminder.type = 'Popup';"""
+            join {les[i][0]} on {les[i][0]}.assigned_user_id = user.id
+            join reminder on reminder.entity_id = {les[i][0]}.id
+            WHERE reminder.deleted != 1 and reminder.entity_type = '{les[i][1]}' and reminder.entity_id = '{les[i][2]}' and reminder.type = 'Popup';"""
                 let = self.requestEspoCRM(database='databaseOne', commandMysql=self.requsetTask)
+                self.spisokDlyaSravneniyaChet.append(let[0])
                 self.spisokDlyaSravneniya.append(tuple(let[0]))
+                let.clear()
             self.addData('databaseTwo', self.mySqlCommandSozdanie)
+            return True
 
     def RequestDataBase(self):
         if not self.contactMySQL:
@@ -112,5 +119,5 @@ class DataSync(Connections, Command): # sync ExpoCRM-DB and python-DB
             # zapros = self.connect('databaseTwo', requestMySQL, self.transformLogin)
             self.contactMySQL = 0
 
-sin = DataSync()
-sin.RequestDataBase()
+# sin = DataSync()
+# sin.RequestDataBase()

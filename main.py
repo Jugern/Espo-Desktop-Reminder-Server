@@ -13,6 +13,11 @@ class startServer(ServerSocket, DataSync, Command):
     def __init__(self):
         self.acceptData = {}
         self.otvet = {}
+        self.spisokDlyaSravneniya = []
+        self.spisokDlyaSravneniyaDva = []
+        self.spisokDlyaSravneniyaTri = []
+        self.spisokDlyaSravneniyaChet = []
+        self.contactMySQL = 0
         self.checkStatus = 0
         super().CommandSQL()
         self.checkSocket()
@@ -22,9 +27,8 @@ class startServer(ServerSocket, DataSync, Command):
 
 
     def scheduleTask(self):
-        schedule.every(5).seconds.do(lambda: self.startMysql()).tag('Task')
+        schedule.every(10).seconds.do(self.startMysql).tag('Task')
         while True:
-            print('doshlo3')
             if self.checkStatus == 0:
                 schedule.run_pending()
                 time.sleep(1)
@@ -44,8 +48,6 @@ class startServer(ServerSocket, DataSync, Command):
     def transformation(self):
         transformLogin = self.acceptData["login"]
         transformLoginAPI = self.acceptData["loginAPI"]
-        print(transformLogin)
-        print(transformLoginAPI)
         return
         # self.acceptData
 
