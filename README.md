@@ -1,1 +1,1 @@
-# EspoCRM Desktop Server Reminder
+# EspoCRM Desktop Reminder Server
