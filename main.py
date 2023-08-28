@@ -12,7 +12,9 @@ class startServer(ServerSocket, DataSync, Command):
 
     def __init__(self):
         self.acceptData = {}
+        self.dats = False
         self.otvet = {}
+        self.govno = 1
         self.spisokDlyaSravneniya = []
         self.spisokDlyaSravneniyaDva = []
         self.spisokDlyaSravneniyaTri = []
@@ -27,7 +29,8 @@ class startServer(ServerSocket, DataSync, Command):
 
 
     def scheduleTask(self):
-        schedule.every(10).seconds.do(self.startMysql).tag('Task')
+        schedule.every(10).seconds.do(self.request).tag('Task')
+        # schedule.every(10).seconds.do(self.startMysql).tag('Task')
         while True:
             if self.checkStatus == 0:
                 schedule.run_pending()
@@ -35,15 +38,18 @@ class startServer(ServerSocket, DataSync, Command):
             else:
                 break
 
-    def request(self, dats=False):
+    def request(self):
         self.otvet = self.acceptRequests()
         base = {"1": {"login": "admin", "loginAPI": "admin", "time": "2022.10.05.10.10.10",
                          "text": {"notifications":'meeting', 'descriptions':'123qweasd', 'url':'urls'}}}
-        if dats:
+        if self.dats:
             raw_data = json.dumps(base)
             self.connection.sendall(raw_data.encode("utf-8"))
+        # elif self.client_address:
+        #     print('Нет данных от:', self.client_address)
         else:
-            print('Нет данных от:', self.client_address)
+            pass
+        self.dats = False
 
     def transformation(self):
         transformLogin = self.acceptData["login"]
@@ -51,6 +57,19 @@ class startServer(ServerSocket, DataSync, Command):
         return
         # self.acceptData
 
+    def Collec(self):
+        schedule.every(10).seconds.do(self.connServer).tag('Conn')
+        # schedule.every(10).seconds.do(self.startMysql).tag('Task')
+        while True:
+            if self.checkStatus == 0:
+                schedule.run_pending()
+                time.sleep(1)
+            else:
+                break
+
+    def connServer(self):
+        lol = ServerSocket()
+        lol.conn()
     def acceptRequests(self):
 
         pass
@@ -65,7 +84,9 @@ class startServer(ServerSocket, DataSync, Command):
         lockCheckSocket = threading.Lock()
         lockCheckSocket.acquire()
         try:
-            self.lcs = Thread(target=ServerSocket)
+            # self.lcs = Thread(target=ServerSocket)
+            self.lcs = Thread(target=self.Collec)
+            # self.lcs.start()
             self.lcs.start()
         finally:
             lockCheckSocket.release()

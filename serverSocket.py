@@ -13,18 +13,26 @@ class ServerSocket():
         print('Подключен к ip {} порт {}'.format(*self.server_address))
         self.sock.bind(self.server_address)
         self.sock.listen(20)
+        print('loh')
+
+    def conn(self):
         while True:
             self.connection, self.client_address = self.sock.accept()
             try:
                 data = self.connection.recv(1024)
                 if data.decode() == False:
                     print(data.decode())
-                if data.decode():
-                    dats = json.loads(data)
-                self.acceptData = dats
-                if dats:
-                    self.transformation()
-                    self.request(True)
+                try:
+                    if data.decode():
+                        dats = json.loads(data)
+                except json.decoder.JSONDecodeError as jsonError:
+                    print(jsonError)
+                # print(dats)
+                # self.dats = True
+                # self.acceptData = dats
+                # if dats:
+                # self.transformation()
+                # self.request(True)
             except socket.error as errorSocket:
                 print(errorSocket)
             finally:
