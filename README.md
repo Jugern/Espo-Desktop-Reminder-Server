@@ -1,1 +1,1 @@
-# connections
+# EspoCRM Desktop Reminder Server
